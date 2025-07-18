@@ -1,22 +1,42 @@
 package com.reboot.zerotocloud.controller;
 
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.reboot.zerotocloud.model.VMProvisionCriteria;
+import com.reboot.zerotocloud.service.GCPProvisionService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import com.google.cloud.ServiceOptions;
+
 
 @RestController
-@RequestMapping("/provisioning") 
+@RequestMapping("/provisioning")
 public class ProvisionController {
-	
-	@PostMapping("/vm") //Sample API to test connectivity from UI
+
+	@Autowired
+	private GCPProvisionService gcpProvisionService;
+
+	@PostMapping("/vm")
 	public ResponseEntity<String> provisionVM(@RequestBody VMProvisionCriteria vmprovision) {
-		
-		return ResponseEntity.ok("VM is provisioned successfully");
-		
+		try {
+			gcpProvisionService.provisionVM(vmprovision);
+			return ResponseEntity.ok("VM provisioning initiated successfully");
+		} catch (Exception e) {
+			return ResponseEntity.internalServerError()
+					.body("Failed to provision VM: " + e.getMessage());
+		}
 	}
 
+	@DeleteMapping("/vm/{zone}/{name}")
+	public ResponseEntity<String> deleteVM(
+			@PathVariable String zone,
+			@PathVariable String name,
+			@RequestParam String project) {  // Remove optional and make it required
+		try {
+			gcpProvisionService.deleteVM(project, zone, name);
+			return ResponseEntity.ok("VM deletion initiated successfully");
+		} catch (Exception e) {
+			return ResponseEntity.internalServerError()
+					.body("Failed to delete VM: " + e.getMessage());
+		}
+	}
 }
