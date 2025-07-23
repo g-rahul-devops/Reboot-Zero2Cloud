@@ -20,7 +20,7 @@ public class GCPProvisionService {
     public Operation provisionVM(VMProvisionCriteria criteria) throws IOException, ExecutionException, InterruptedException {
         try (InstancesClient instancesClient = InstancesClient.create()) {
             Instance instanceResource = Instance.newBuilder()
-                    .setName(criteria.getName())
+                    .setName(criteria.getInstanceName())
                     .setMachineType(String.format("zones/%s/machineTypes/%s",
                             criteria.getZone(),
                             criteria.getMachineType()))
@@ -38,7 +38,7 @@ public class GCPProvisionService {
                     .build();
 
             InsertInstanceRequest request = InsertInstanceRequest.newBuilder()
-                    .setProject(criteria.getProject())
+                    .setProject(criteria.getProjectId())
                     .setZone(criteria.getZone())
                     .setInstanceResource(instanceResource)
                     .build();
