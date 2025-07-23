@@ -1,6 +1,9 @@
 package com.reboot.zerotocloud.service;
 
 import com.google.cloud.compute.v1.*;
+import com.google.cloud.monitoring.v3.MetricServiceClient;
+import com.google.monitoring.v3.*;
+import com.google.protobuf.util.Timestamps;
 import com.reboot.zerotocloud.model.GcpVmInfo;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -8,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.StreamSupport;
 
 @Service
 public class ResourceInfoService {
@@ -19,7 +23,8 @@ public class ResourceInfoService {
         List<GcpVmInfo> result = new ArrayList<>();
 
         try (InstancesClient instancesClient = InstancesClient.create();
-             DisksClient disksClient = DisksClient.create()) {
+             DisksClient disksClient = DisksClient.create();
+             MetricServiceClient metricClient = MetricServiceClient.create()) {
 
             AggregatedListInstancesRequest request = AggregatedListInstancesRequest.newBuilder()
                     .setProject(projectId)
@@ -34,6 +39,7 @@ public class ResourceInfoService {
                         String instanceName = instance.getName();
                         String createdTime = instance.getCreationTimestamp();
                         String status = instance.getStatus();
+                        long instanceId = instance.getId();
 
                         String sourceImage = "unknown";
 
@@ -46,8 +52,15 @@ public class ResourceInfoService {
                                 sourceImage = disk.getSourceImage(); // full image path
                             }
                         } catch (Exception e) {
-                            // optional: log warning or skip
                             sourceImage = "unavailable";
+                        }
+
+                        String memoryUsage = "N/A";
+                        try {
+                            double mem = getMemoryUsage(metricClient, projectId, instanceId);
+                            memoryUsage = String.format("%.2f", mem);
+                        } catch (Exception e) {
+                            memoryUsage = "N/A";
                         }
 
                         GcpVmInfo vmInfo = new GcpVmInfo(
@@ -57,7 +70,7 @@ public class ResourceInfoService {
                                 zone,
                                 sourceImage,
                                 createdTime,
-                                null // memory usage not fetched yet
+                                memoryUsage
                         );
 
                         result.add(vmInfo);
@@ -72,4 +85,31 @@ public class ResourceInfoService {
     private String extractLast(String fullPath) {
         return fullPath.substring(fullPath.lastIndexOf("/") + 1);
     }
+
+    private double getMemoryUsage(MetricServiceClient metricClient, String projectId, long instanceId) throws IOException {
+        TimeInterval interval = TimeInterval.newBuilder()
+                .setStartTime(Timestamps.fromMillis(System.currentTimeMillis() - 5 * 60 * 1000))
+                .setEndTime(Timestamps.fromMillis(System.currentTimeMillis()))
+                .build();
+
+        String filter = String.format(
+                "metric.type=\"agent.googleapis.com/memory/percent_used\" AND resource.labels.instance_id=\"%s\"",
+                instanceId);
+
+        ListTimeSeriesRequest request = ListTimeSeriesRequest.newBuilder()
+                .setName(ProjectName.of(projectId).toString())
+                .setFilter(filter)
+                .setInterval(interval)
+                .setView(ListTimeSeriesRequest.TimeSeriesView.FULL)
+                .build();
+
+        MetricServiceClient.ListTimeSeriesPagedResponse response = metricClient.listTimeSeries(request);
+
+        return StreamSupport.stream(response.iterateAll().spliterator(), false)
+                .flatMap(ts -> ts.getPointsList().stream())
+                .mapToDouble(p -> p.getValue().getDoubleValue())
+                .average()
+                .orElse(0.0);
+    }
+
 }
