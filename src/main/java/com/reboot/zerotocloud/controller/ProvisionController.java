@@ -31,9 +31,9 @@ public class ProvisionController {
 	public ResponseEntity<String> deleteVM(
 			@PathVariable String zone,
 			@PathVariable String name,
-			@RequestParam String project) {  // Remove optional and make it required
+			@RequestParam String projectId) {  // Remove optional and make it required
 		try {
-			gcpProvisionService.deleteVM(project, zone, name);
+			gcpProvisionService.deleteVM(projectId, zone, name);
 			return ResponseEntity.ok("VM deletion initiated successfully");
 		} catch (Exception e) {
 			return ResponseEntity.internalServerError()

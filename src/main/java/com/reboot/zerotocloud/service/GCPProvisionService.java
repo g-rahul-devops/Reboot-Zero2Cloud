@@ -48,10 +48,10 @@ public class GCPProvisionService {
     }
 
 
-    public Operation deleteVM(String project, String zone, String instanceName) throws IOException, InterruptedException, ExecutionException {
+    public Operation deleteVM(String projectId, String zone, String instanceName) throws IOException, InterruptedException, ExecutionException {
         try (InstancesClient instancesClient = InstancesClient.create()) {
             DeleteInstanceRequest deleteInstanceRequest = DeleteInstanceRequest.newBuilder()
-                    .setProject(project)
+                    .setProject(projectId)
                     .setZone(zone)
                     .setInstance(instanceName)
                     .build();
