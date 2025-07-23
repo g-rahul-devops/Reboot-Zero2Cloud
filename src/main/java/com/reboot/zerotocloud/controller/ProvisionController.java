@@ -10,6 +10,7 @@ import com.google.cloud.ServiceOptions;
 
 @RestController
 @RequestMapping("/provisioning")
+@CrossOrigin(origins = "*") // Allows all origins
 public class ProvisionController {
 
 	@Autowired

@@ -2,11 +2,11 @@ package com.reboot.zerotocloud.model;
 
 public class VMProvisionCriteria {
 	
-	private String project;
+	private String projectId;
 	
 	private String zone;
 	
-	private String name;
+	private String instanceName;
 	
 	private String tags;
 	
@@ -14,12 +14,12 @@ public class VMProvisionCriteria {
 	
 	private String disks;
 
-	public String getProject() {
-		return project;
+	public String getProjectId() {
+		return projectId;
 	}
 
-	public void setProject(String project) {
-		this.project = project;
+	public void setProjectId(String projectId) {
+		this.projectId = projectId;
 	}
 
 	public String getZone() {
@@ -30,12 +30,12 @@ public class VMProvisionCriteria {
 		this.zone = zone;
 	}
 
-	public String getName() {
-		return name;
+	public String getInstanceName() {
+		return instanceName;
 	}
 
-	public void setName(String name) {
-		this.name = name;
+	public void setInstanceName(String instanceName) {
+		this.instanceName = instanceName;
 	}
 
 	public String getTags() {
