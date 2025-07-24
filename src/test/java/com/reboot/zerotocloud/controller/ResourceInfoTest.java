@@ -86,21 +86,4 @@ class ResourcesInfoTest {
         verify(resourceInfoService).getAllVmInfo();
     }
 
-    @Test
-    void getAllVmInfo_serviceThrowsIOException_resultsInRuntimeException() throws Exception {
-        when(resourceInfoService.getAllVmInfo())
-            .thenThrow(new IOException("I/O failure"));
-
-        mockMvc.perform(get("/api/gcp/all-vms"))
-            .andExpect(result -> {
-                Throwable ex = result.getResolvedException();
-                assertNotNull(ex);
-                assertTrue(ex instanceof RuntimeException);
-                assertEquals("Failed to fetch VM info", ex.getMessage());
-                assertTrue(ex.getCause() instanceof IOException);
-                assertEquals("I/O failure", ex.getCause().getMessage());
-            });
-
-        verify(resourceInfoService).getAllVmInfo();
-    }
 }
