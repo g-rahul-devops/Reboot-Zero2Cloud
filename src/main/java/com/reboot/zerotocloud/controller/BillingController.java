@@ -17,11 +17,16 @@ public class BillingController {
 
     @GetMapping("/summary")
     public ResponseEntity<BillingInfo> getBillingSummary() {
+        System.out.println("📡 Called /summary endpoint");
         try {
             BillingInfo info = billingService.fetchBillingData();
+            System.out.println("✅ Billing fetched: " + info);
             return ResponseEntity.ok(info);
         } catch (Exception e) {
+            System.out.println("❌ Exception caught:");
+            e.printStackTrace();  // Don't miss this line!
             return ResponseEntity.internalServerError().build();
         }
     }
+
 }
