@@ -23,7 +23,7 @@ public class BillingController {
             System.out.println("✅ Billing fetched: " + info);
             return ResponseEntity.ok(info);
         } catch (Exception e) {
-            System.out.println("❌ Exception caught:");
+            System.out.println("Exception caught:");
             e.printStackTrace();  // Don't miss this line!
             return ResponseEntity.internalServerError().build();
         }
