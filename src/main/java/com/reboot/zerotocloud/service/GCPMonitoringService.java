@@ -7,6 +7,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.auth.oauth2.GoogleCredentials;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -30,11 +31,11 @@ public class GCPMonitoringService {
 
     private static final String BASE_URL = "https://monitoring.googleapis.com/v3/projects/{projectId}/timeSeries";
 
-    private final ServiceAccountCredentials credentials;
+    private final GoogleCredentials credentials;
     private final RestTemplate restTemplate;
     private final String projectId;
 
-    public GCPMonitoringService(ServiceAccountCredentials credentials,
+    public GCPMonitoringService(GoogleCredentials credentials,
                                 RestTemplate restTemplate,
                                 @Value("${gcp.project-id}") String projectId) {
         this.credentials = credentials;
@@ -125,7 +126,7 @@ public class GCPMonitoringService {
             .queryParam("interval.endTime", end.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME))
             .buildAndExpand(projectId)
             .toUriString();
-        
+
      // 3) Grab a fresh access token
         String token = credentials
           .refreshAccessToken()
@@ -170,7 +171,7 @@ public class GCPMonitoringService {
                     double value = p.value().doubleValue() != null
                                  ? p.value().doubleValue()
                                  : p.value().int64Value();
-                    
+
                     double finalVal = scaleToPercent ? value * 100.0 : value;
                     OffsetDateTime tsStamp = OffsetDateTime.parse(p.interval().endTime());
                     points.add(new DataPoint(tsStamp, finalVal));

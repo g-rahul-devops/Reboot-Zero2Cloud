@@ -22,6 +22,7 @@ public class ProvisionController {
 			gcpProvisionService.provisionVM(vmprovision);
 			return ResponseEntity.ok("VM provisioning initiated successfully");
 		} catch (Exception e) {
+			e.printStackTrace();
 			return ResponseEntity.internalServerError()
 					.body("Failed to provision VM: " + e.getMessage());
 		}
@@ -36,6 +37,7 @@ public class ProvisionController {
 			gcpProvisionService.deleteVM(projectId, zone, name);
 			return ResponseEntity.ok("VM deletion initiated successfully");
 		} catch (Exception e) {
+			e.printStackTrace();
 			return ResponseEntity.internalServerError()
 					.body("Failed to delete VM: " + e.getMessage());
 		}

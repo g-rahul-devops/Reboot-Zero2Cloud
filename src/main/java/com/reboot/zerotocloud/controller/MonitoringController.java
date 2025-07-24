@@ -26,7 +26,7 @@ public class MonitoringController {
     public MonitoringController(GCPMonitoringService service) {
         this.service = service;
     }
-    
+
     @PostMapping(path = "/vm/cpu", produces = MediaType.APPLICATION_JSON_VALUE)
     public MonitoringResponse getCpu(
         @RequestBody @Valid MonitoringRequest req
@@ -40,7 +40,7 @@ public class MonitoringController {
     ) throws IOException {
         return service.getMemoryUtilization(req);
     }
-    
+
     @PostMapping(path = "/bucket/bytes", produces = MediaType.APPLICATION_JSON_VALUE)
     public MonitoringResponse getTotalBytes(
         @RequestBody @Valid MonitoringRequest req
@@ -68,5 +68,5 @@ public class MonitoringController {
     ) throws IOException {
         return service.getCloudSqlConnections(req);
     }
-    
+
 }
