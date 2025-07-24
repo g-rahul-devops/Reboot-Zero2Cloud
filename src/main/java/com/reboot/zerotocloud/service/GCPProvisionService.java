@@ -53,6 +53,14 @@ public class GCPProvisionService {
                             .setType("PERSISTENT")
                             .build())
                     .putAllLabels(labels)  // Use putAllLabels instead of setLabels
+                    .setMetadata(Metadata.newBuilder()
+                            .addItems(Items.newBuilder()
+                                    .setKey("startup-script")
+                                    .setValue("#!/bin/bash\n" +
+                                            "curl -sSO https://dl.google.com/cloudagents/add-google-cloud-ops-agent-repo.sh\n" +
+                                            "sudo bash add-google-cloud-ops-agent-repo.sh --also-install\n"))
+                            .build())
+
                     .build();
 
             InsertInstanceRequest request = InsertInstanceRequest.newBuilder()
